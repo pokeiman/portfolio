@@ -1,0 +1,757 @@
+<!-- pokeiman - website and portfolio -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iman Attar | Creative Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Righteous&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* bg color */
+            --bg-color: #E1E6D8; 
+            /* dark text */
+            --text-dark: #1F2937; 
+            /* purple accent */
+            --accent-purple: #7C3AED; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            /* paper texture */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+            color: var(--text-dark);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden; 
+            margin: 0;
+            padding: 0;
+        }
+
+        /* syne font */
+        h1, h2, h3, .font-display {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; 
+        }
+
+        /* logo font */
+        .font-logo {
+            font-family: 'Righteous', cursive;
+        }
+
+        /* view transitions */
+        .view-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .view-section.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        #landing-view { transform: translateY(20px); }
+        
+        /* lock portfolio view */
+        #portfolio-view { transform: scale(0.95); overflow: hidden !important; }
+
+        /* purse interactions */
+        .purse-canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .purse-trigger {
+            cursor: pointer;
+            z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));
+        }
+
+        .purse-trigger:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .purse-trigger.active {
+            transform: scale(0.9) translateY(10px);
+        }
+
+        .item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            opacity: 0;
+            cursor: pointer;
+            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        .item span {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            margin-top: 10px;
+            background: var(--text-dark);
+            color: var(--bg-color);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .item:hover span {
+            opacity: 1;
+        }
+
+        .item-icon {
+            font-size: 5rem;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .item:hover .item-icon {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .item.revealed { opacity: 1; pointer-events: all; }
+        
+        /* icon positioning */
+        .item.revealed.pos-1 { transform: translate(-170%, -110%) scale(1); transition-delay: 0.0s; } 
+        .item.revealed.pos-2 { transform: translate(70%, -110%) scale(1); transition-delay: 0.1s; }  
+        .item.revealed.pos-3 { transform: translate(-220%, -10%) scale(1); transition-delay: 0.2s; }   
+        .item.revealed.pos-4 { transform: translate(120%, -10%) scale(1); transition-delay: 0.3s; }    
+        .item.revealed.pos-5 { transform: translate(-170%, 90%) scale(1); transition-delay: 0.4s; }   
+        .item.revealed.pos-6 { transform: translate(70%, 90%) scale(1); transition-delay: 0.5s; }   
+        /* adjusted phone to 140% for perfect spacing */
+        .item.revealed.pos-7 { transform: translate(-50%, 140%) scale(1); transition-delay: 0.6s; }   
+
+        /* zoom effect */
+        .item.zoomed {
+            transform: translate(-50%, -50%) scale(2.2) !important;
+            z-index: 60; 
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .item.zoomed span {
+            opacity: 0; 
+        }
+
+        /* modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(225, 230, 216, 0.85); 
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: #FAFAFA; 
+            width: 90%;
+            max-width: 1000px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.1);
+            transform: translateY(40px) scale(0.95);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 30px; right: 30px;
+            background: #E1E6D8;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            z-index: 10;
+            color: #1F2937;
+        }
+
+        .close-btn:hover { background: #cbd5c0; }
+
+        .modal-content::-webkit-scrollbar { width: 6px; }
+        .modal-content::-webkit-scrollbar-track { background: transparent; }
+        .modal-content::-webkit-scrollbar-thumb { background: #cbd5c0; border-radius: 10px; }
+
+        .ed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .ed-img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #E1E6D8; 
+        }
+
+        /* spin animation */
+        @keyframes spin-slow {
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 20s linear infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- landing page -->
+    <section id="landing-view" class="view-section active flex flex-col items-center justify-center p-8 min-h-screen">
+        
+        <div class="flex flex-col items-center justify-center w-full max-w-4xl">
+            
+            <!-- logo group -->
+            <div class="relative flex items-center justify-center w-full">
+                
+                <!-- spinning text -->
+                <div class="absolute w-[85vw] md:w-[55vw] max-w-[700px] aspect-square pointer-events-none animate-spin-slow opacity-90">
+                    <svg viewBox="0 0 200 200" class="w-full h-full">
+                        <path id="text-circle" d="M 100, 100 m -85, 0 a 85,85 0 1,1 170,0 a 85,85 0 1,1 -170,0" fill="none" />
+                        <!-- removed one iteration to prevent overlap -->
+                        <text font-size="8" font-weight="bold" fill="white" stroke="black" stroke-width="0.5" paint-order="stroke fill" class="font-display uppercase" letter-spacing="4">
+                            <textPath href="#text-circle" startOffset="0%">
+                                Click to View • Click to View • Click to View • Click to View • Click to View • Click to View • 
+                            </textPath>
+                        </text>
+                    </svg>
+                </div>
+                
+                <!-- clickable logo -->
+                <img src="images/Iman_logo_black.png" alt="Iman Attar Logo" class="w-[60vw] md:w-[40vw] max-w-xl h-auto object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 relative z-10 cursor-pointer" onclick="switchView('portfolio-view')">
+                
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- interactive canvas -->
+    <section id="portfolio-view" class="view-section">
+        
+        <!-- back button -->
+        <button onclick="switchView('landing-view')" class="absolute top-8 left-8 z-50 font-display text-2xl text-gray-900 hover:text-purple-600 transition-colors flex items-center gap-3">
+            <i class="fas fa-arrow-left text-sm"></i> Back
+        </button>
+
+        <!-- instruction text -->
+        <div class="absolute top-16 md:top-20 left-0 w-full text-center z-10 transition-opacity duration-500" id="instruction-text-container">
+            <h2 class="font-display text-4xl md:text-5xl text-gray-900 drop-shadow-sm" id="instruction-text">Click the purse to open</h2>
+        </div>
+
+        <div class="purse-canvas">
+            
+            <!-- purse -->
+            <div id="purse-trigger" class="purse-trigger" onclick="togglePurse()">
+                <img id="main-purse-img" src="images/purse.png" alt="Celine Purse" class="w-56 md:w-72 h-auto object-contain drop-shadow-2xl transition-all duration-300">
+            </div>
+
+            <!-- items -->
+            <div class="item pos-1" onclick="handleItemClick(event, this, 'modal-bio')">
+                <div class="item-icon">
+                    <img id="bio-img" src="images/smiski.png" alt="Bio & Values" class="w-28 h-28 md:w-36 md:h-36 object-contain transition-all duration-300">
+                </div>
+                <span>Bio & Values</span>
+            </div>
+            <div class="item pos-2" onclick="handleItemClick(event, this, 'modal-projects')">
+                <div class="item-icon">
+                    <img id="web-img" src="images/laptop.png" alt="Web Design" class="w-28 h-28 md:w-36 md:h-36 object-contain transition-all duration-300">
+                </div>
+                <span>Web Design</span>
+            </div>
+            <div class="item pos-3" onclick="handleItemClick(event, this, 'modal-art')">
+                <div class="item-icon">
+                    <img id="art-img" src="images/sketchbook.png" alt="Art & Design" class="w-28 h-28 md:w-36 md:h-36 object-contain transition-all duration-300">
+                </div>
+                <span>Art & Design</span>
+            </div>
+            <div class="item pos-4" onclick="handleItemClick(event, this, 'modal-edu')">
+                <div class="item-icon">
+                    <img id="edu-img" src="images/gradcat.png" alt="Education" class="w-28 h-28 md:w-36 md:h-36 object-contain transition-all duration-300">
+                </div>
+                <span>Education</span>
+            </div>
+            <div class="item pos-5" onclick="handleItemClick(event, this, 'modal-exp')">
+                <div class="item-icon">
+                    <img id="exp-img" src="images/folder.png" alt="Experience" class="w-28 h-28 md:w-36 md:h-36 object-contain transition-all duration-300">
+                </div>
+                <span>Experience</span>
+            </div>
+            <div class="item pos-6" onclick="handleItemClick(event, this, 'modal-skills')">
+                <div class="item-icon">
+                    <img id="skills-img" src="images/pouch.png" alt="Skills" class="w-28 h-28 md:w-36 md:h-36 object-contain transition-all duration-300">
+                </div>
+                <span>Skills</span>
+            </div>
+            <!-- contact item -->
+            <div class="item pos-7" onclick="handleItemClick(event, this, 'modal-contact')">
+                <div class="item-icon">
+                    <!-- shrunk further down to ensure it doesn't get cut off -->
+                    <img id="contact-img" src="images/phone_close.png" alt="Contact" class="w-16 h-16 md:w-24 md:h-24 object-contain transition-all duration-300">
+                </div>
+                <span>Contact</span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- modals -->
+
+    <!-- bio modal -->
+    <div id="modal-bio" class="modal-overlay">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal-bio')"><i class="fas fa-times"></i></div>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                
+                <div class="flex justify-center">
+                    <div class="w-72 h-72 md:w-96 md:h-96 bg-purple-600 rounded-full overflow-hidden flex items-center justify-center text-white border-8 border-white shadow-xl relative">
+                        <img src="images/portrait.jpg" alt="Iman Attar Portrait" class="w-full h-full object-cover">
+                        <div class="absolute bottom-4 right-4 text-4xl">✨</div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col justify-center">
+                    <h2 class="text-5xl font-display mb-6 text-gray-900">About me</h2>
+                    <p class="text-lg leading-relaxed text-gray-600 mb-8 font-medium">
+                        Hello, my name is Iman Attar and I am a Digital Media major at UCF specializing in Web Design. I am an aspiring UI/UX designer and web developer and I am passionate about crafting seamless, user-friendly digital experiences. With a keen eye for design and functionality, I create intuitive interfaces that prioritize both aesthetics and usability.
+                    </p>
+                    <h3 class="text-3xl font-display mb-4 text-purple-600 flex items-center gap-3">
+                        <i class="fas fa-pencil-alt text-xl"></i> Design Philosophy
+                    </h3>
+                    <p class="text-lg leading-relaxed text-gray-600 font-medium">
+                        I believe great design is more than just visuals—it's about problem-solving, storytelling, and enhancing user experiences. My process involves research, iteration, and attention to detail to create digital solutions that are both functional and visually engaging.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- web design modal -->
+    <div id="modal-projects" class="modal-overlay">
+        <div class="modal-content max-w-4xl">
+            <div class="close-btn" onclick="closeModal('modal-projects')"><i class="fas fa-times"></i></div>
+            <h2 class="text-6xl font-display mb-2 text-gray-900">Web Design</h2>
+            <p class="text-lg uppercase tracking-widest text-gray-500 mb-8 font-bold">Featured UI/UX & Development</p>
+
+            <div class="space-y-16">
+                <!-- penpath project -->
+                <div class="border-t border-gray-200 pt-8">
+                    <div class="flex items-center gap-10 mb-4">
+                        <h3 class="text-5xl font-display text-blue-500 m-0">PenPath</h3>
+                        <img src="images/penpath_logo.png" alt="PenPath Logo" class="h-16 w-auto object-contain drop-shadow-sm">
+                    </div>
+                    <p class="font-bold text-gray-500 mb-4 uppercase text-sm tracking-widest">Cursive Learning App</p>
+                    <p class="text-gray-700 leading-relaxed mb-6 max-w-3xl text-lg font-medium">PenPath is a gamified cursive learning application designed for K-5 students to develop handwriting skills through structured lessons, level progression, and interactive rewards. Inspired by platforms like Duolingo, the app combines educational content with badges, mascot-based motivation, and a handwriting scan feature to create an engaging and accessible learning experience.</p>
+                    
+                    <div class="bg-blue-50 rounded-xl p-6 mb-8 border border-blue-100">
+                        <h4 class="font-bold text-gray-900 mb-2">My Role: UI/UX Designer & Documentation</h4>
+                        <ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li>Designed high-fidelity wireframes and prototypes in Figma to create an intuitive, child-friendly interface.</li>
+                            <li>Structured lesson flows, level progression, and badge reward systems.</li>
+                            <li>Conducted UI testing to ensure consistency between design prototypes and implemented React/React Native components.</li>
+                            <li>Prioritized accessibility and clarity tailored for young learners.</li>
+                        </ul>
+                    </div>
+
+                    <!-- penpath images -->
+                    <div class="mt-6">
+                        <img src="images/penpath_wireframe.png" alt="PenPath Wireframes & Designs" class="w-full rounded-xl shadow-md border border-gray-200 bg-white">
+                    </div>
+                </div>
+
+                <!-- plateup project -->
+                <div class="border-t border-gray-200 pt-8">
+                    <div class="flex items-center gap-6 mb-4">
+                        <img src="images/plateup_logo.jpg" alt="PlateUp Logo" class="h-16 w-auto object-contain rounded-xl drop-shadow-sm">
+                        <h3 class="text-5xl font-display text-orange-500 m-0">Plate Up</h3>
+                    </div>
+                    <p class="font-bold text-gray-500 mb-4 uppercase text-sm tracking-widest">A Food Waste App</p>
+                    <p class="text-gray-700 leading-relaxed mb-6 max-w-3xl text-lg font-medium">PlateUP is a user-centered mobile app designed to reduce food waste by connecting individuals with surplus food to those in need. The app allows users to share, donate, and track excess food, promoting sustainability and community support.</p>
+                    
+                    <div class="bg-orange-50 rounded-xl p-6 mb-8 border border-orange-100">
+                        <h4 class="font-bold text-gray-900 mb-2">My Role: UI/UX Designer</h4>
+                        <ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li>Conducted user research to understand food-sharing behaviors.</li>
+                            <li>Created wireframes and prototypes to design an intuitive, user-friendly interface.</li>
+                            <li>Collaborated with the project manager and design team to align app features with user needs.</li>
+                            <li>Focused on accessibility, ensuring seamless navigation and clear call-to-actions.</li>
+                        </ul>
+                    </div>
+
+                    <!-- plateup images -->
+                    <div class="mt-6">
+                        <img src="images/plateup_figma.jpg" alt="PlateUp Figma Designs" class="w-full rounded-xl shadow-md border border-gray-200 bg-white">
+                    </div>
+                </div>
+
+                <!-- cat cafe project -->
+                <div class="border-t border-gray-200 pt-8">
+                    <div class="flex items-center gap-6 mb-4">
+                        <img src="images/ccc_logo.png" alt="The Cozy Cat Cafe Logo" class="h-16 w-auto object-contain drop-shadow-sm">
+                        <h3 class="text-5xl font-display text-yellow-600 m-0">The Cozy Cat Cafe</h3>
+                    </div>
+                    <p class="font-bold text-gray-500 mb-4 uppercase text-sm tracking-widest">One Page Landing Website</p>
+                    <p class="text-gray-700 leading-relaxed mb-6 max-w-3xl text-lg font-medium">The Cozy Cat Cafe is a fictional local coffee shop website designed to create a warm, inviting online presence. The site highlights the cafe's unique concept blending a love for coffee with the charm of adoptable cats—while ensuring an engaging and user-friendly experience.</p>
+                    
+                    <div class="bg-yellow-50 rounded-xl p-6 mb-8 border border-yellow-100">
+                        <h4 class="font-bold text-gray-900 mb-2">My Role: Web Designer</h4>
+                        <ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li>Designed a responsive, visually appealing one-page layout using Canva and custom CSS.</li>
+                            <li>Focused on intuitive navigation, clear call-to-actions, and a cozy aesthetic.</li>
+                            <li>Implemented smooth animations and micro-interactions for a dynamic user experience.</li>
+                        </ul>
+                    </div>
+
+                    <!-- cat cafe images -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <img src="images/ccc1.jpg" alt="Cat Cafe Design 1" class="w-full h-auto rounded-xl shadow-sm border border-gray-200 object-cover">
+                        <img src="images/ccc2.jpg" alt="Cat Cafe Design 2" class="w-full h-auto rounded-xl shadow-sm border border-gray-200 object-cover">
+                        <img src="images/ccc3.jpg" alt="Cat Cafe Design 3" class="w-full h-auto rounded-xl shadow-sm border border-gray-200 object-cover">
+                        <img src="images/ccc4.jpg" alt="Cat Cafe Design 4" class="w-full h-auto rounded-xl shadow-sm border border-gray-200 object-cover">
+                        <img src="images/ccc5.jpg" alt="Cat Cafe Design 5" class="w-full h-auto rounded-xl shadow-sm border border-gray-200 object-cover md:col-span-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- art modal -->
+    <div id="modal-art" class="modal-overlay">
+        <div class="modal-content max-w-5xl">
+            <div class="close-btn" onclick="closeModal('modal-art')"><i class="fas fa-times"></i></div>
+            <h2 class="text-6xl font-display mb-2 text-gray-900">Photoshop & Physical</h2>
+            <p class="text-lg uppercase tracking-widest text-gray-500 mb-12 font-bold">Art, Composites, and Graphic Design</p>
+
+            <div class="space-y-16">
+                <!-- physical models -->
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 class="text-4xl font-display mb-1 text-gray-900">Physical Models</h3>
+                    <p class="text-sm text-gray-500 uppercase tracking-wider font-bold mb-8">Cardboard & Paper Sculptures</p>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <img src="images/chipboard1.jpg" alt="Physical Model" class="w-full aspect-[4/3] object-contain bg-gray-50 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <img src="images/chipboard2.jpg" alt="Physical Model" class="w-full aspect-[4/3] object-contain bg-gray-50 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <img src="images/abstract.jpg" alt="Abstract Model" class="w-full aspect-[4/3] object-contain bg-gray-50 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <img src="images/dancing_house.jpg" alt="Dancing House Model" class="w-full aspect-[4/3] object-contain bg-gray-50 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <img src="images/dancing_house2.jpg" alt="Dancing House Model Alt" class="w-full aspect-[4/3] object-contain bg-gray-50 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                    </div>
+                </div>
+
+                <!-- photoshop composites -->
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 class="text-4xl font-display mb-1 text-gray-900">Photoshop Composites</h3>
+                    <p class="text-sm text-gray-500 uppercase tracking-wider font-bold mb-8">Digital Manipulation</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <img src="images/photoshop1.jpg" alt="Photoshop Composite" class="w-full aspect-video object-cover rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <img src="images/photoshop2.jpg" alt="Photoshop Composite" class="w-full aspect-video object-cover rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <img src="images/photoshop3.jpg" alt="Photoshop Composite" class="w-full aspect-video object-cover rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <img src="images/photoshop4.jpeg" alt="Photoshop Composite" class="w-full aspect-video object-cover rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                    </div>
+                </div>
+
+                <!-- graphic flyers -->
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 class="text-4xl font-display mb-1 text-gray-900">Graphic Flyers</h3>
+                    <p class="text-sm text-gray-500 uppercase tracking-wider font-bold mb-8">Layout & Typography</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                        <img src="images/shaabana_flyer.png" alt="Shaabana Flyer" class="w-full h-auto object-contain rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow bg-gray-50">
+                        <img src="images/hteyl.png" alt="Boston Lobster Feast Flyer" class="w-full h-auto object-contain rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow bg-gray-50">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- education modal -->
+    <div id="modal-edu" class="modal-overlay">
+        <div class="modal-content max-w-2xl">
+            <div class="close-btn" onclick="closeModal('modal-edu')"><i class="fas fa-times"></i></div>
+            <h2 class="text-6xl font-display mb-8 text-center text-gray-900">Education</h2>
+            
+            <div class="bg-[#E1E6D8]/30 border-2 border-[#E1E6D8] p-10 rounded-2xl shadow-sm">
+                <div class="flex items-center gap-6 mb-4">
+                    <img src="images/UCF_logo.svg" alt="UCF Logo" class="w-16 h-16 md:w-20 md:h-20 object-contain">
+                    <div>
+                        <h3 class="text-4xl font-display text-gray-900">University of Central Florida</h3>
+                        <p class="text-gray-600 uppercase tracking-widest text-sm mt-1 font-bold">Bachelor of Arts in Digital Media</p>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-600 mb-6 pb-6 border-b border-gray-300">Orlando, FL &bull; Expected May 2026 &bull; <span class="font-bold text-purple-600">GPA: 3.8</span></div>
+                <p class="text-gray-700 leading-relaxed font-medium"><strong class="font-bold text-gray-900">Relevant Coursework:</strong> Digital Video Fundamentals, Interactive Design, Web Development, User-Centered Design, Client/Server Side Scripting.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- experience modal -->
+    <div id="modal-exp" class="modal-overlay">
+        <div class="modal-content max-w-3xl">
+            <div class="close-btn" onclick="closeModal('modal-exp')"><i class="fas fa-times"></i></div>
+            <h2 class="text-6xl font-display mb-12 text-gray-900">Work Experience</h2>
+
+            <div class="relative border-l-2 border-gray-200 pl-10 ml-4 space-y-16">
+                <!-- job 1 -->
+                <div class="relative">
+                    <div class="absolute w-5 h-5 bg-purple-600 rounded-full -left-[51px] top-1 border-4 border-white shadow-sm"></div>
+                    <h3 class="text-4xl font-display text-gray-900">Web Design & Marketing Intern</h3>
+                    <p class="text-purple-600 font-bold mb-4 mt-1 uppercase tracking-widest text-xs">NVEEE &bull; May 2024 - Aug 2024</p>
+                    <ul class="list-disc list-outside ml-4 text-gray-700 space-y-3 leading-relaxed font-medium text-lg">
+                        <li>Designed and updated WordPress web pages to improve site navigation and user experience.</li>
+                        <li>Collaborated with cross-functional marketing teams using Slack to align branding and digital content strategy.</li>
+                        <li>Optimized FAQ and informational pages to increase clarity and accessibility for users.</li>
+                    </ul>
+                </div>
+
+                <!-- job 2 -->
+                <div class="relative">
+                    <div class="absolute w-5 h-5 bg-blue-500 rounded-full -left-[51px] top-1 border-4 border-white shadow-sm"></div>
+                    <h3 class="text-4xl font-display text-gray-900">Graphic Designer</h3>
+                    <p class="text-blue-600 font-bold mb-4 mt-1 uppercase tracking-widest text-xs">Moroccan Breeze &bull; March 2023 - Present</p>
+                    <ul class="list-disc list-outside ml-4 text-gray-700 space-y-3 leading-relaxed font-medium text-lg">
+                        <li>Designed and marketed custom flyers using Adobe Photoshop, leading to greater demand and an increase in profits.</li>
+                        <li>Promoted large events through social media.</li>
+                        <li>Illustrated the company's vision through analytical and artistic outputs.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- skills modal -->
+    <div id="modal-skills" class="modal-overlay">
+        <div class="modal-content max-w-4xl">
+            <div class="close-btn" onclick="closeModal('modal-skills')"><i class="fas fa-times"></i></div>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- core skills -->
+                <div>
+                    <h2 class="text-5xl font-display mb-6 text-gray-900 border-b-4 border-purple-200 pb-2 inline-block">Core Skills</h2>
+                    <div class="flex flex-wrap gap-3 mt-4">
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/wordpress_logo.png" alt="WordPress" class="w-5 h-5 object-contain"> WordPress
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/html_code_icon.png" alt="HTML" class="w-5 h-5 object-contain"> HTML
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/css_logo.png" alt="CSS" class="w-5 h-5 object-contain"> CSS
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/javascript_logo.png" alt="JavaScript" class="w-5 h-5 object-contain"> JavaScript
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/figma_logo.png" alt="Figma" class="w-5 h-5 object-contain"> Figma
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/xd_logo.png" alt="Adobe XD" class="w-5 h-5 object-contain"> Adobe XD
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/photoshop_logo.png" alt="Photoshop" class="w-5 h-5 object-contain"> Photoshop
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/illustrate_logo.png" alt="Illustrator" class="w-5 h-5 object-contain"> Illustrator
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/canva_logo.png" alt="Canva" class="w-5 h-5 object-contain"> Canva
+                        </span>
+                        <span class="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-full text-sm font-bold text-gray-800 shadow-sm flex items-center gap-2">
+                            <img src="images/excel_logo.png" alt="Microsoft Excel" class="w-5 h-5 object-contain"> Microsoft Excel
+                        </span>
+                    </div>
+                </div>
+
+                <!-- soft skills -->
+                <div>
+                    <h2 class="text-5xl font-display mb-6 text-gray-900 border-b-4 border-blue-200 pb-2 inline-block">Soft Skills</h2>
+                    <ul class="space-y-4 mt-4">
+                        <li class="text-gray-700 text-lg"><strong class="font-bold text-gray-900">Communication</strong> - Presenting ideas clearly, gathering feedback, and collaborating.</li>
+                        <li class="text-gray-700 text-lg"><strong class="font-bold text-gray-900">Empathy</strong> - Understanding users' needs to create meaningful designs.</li>
+                        <li class="text-gray-700 text-lg"><strong class="font-bold text-gray-900">Problem-Solving</strong> - Finding creative solutions to challenges.</li>
+                        <li class="text-gray-700 text-lg"><strong class="font-bold text-gray-900">Collaboration</strong> - Working with developers and stakeholders.</li>
+                        <li class="text-gray-700 text-lg"><strong class="font-bold text-gray-900">Adaptability</strong> - Quickly iterating based on feedback and ideas.</li>
+                        <li class="text-gray-700 text-lg"><strong class="font-bold text-gray-900">Time Management</strong> - Balancing multiple projects effectively.</li>
+                        <li class="text-gray-700 text-lg"><strong class="font-bold text-gray-900">Attention to Detail</strong> - Ensuring polished, user-friendly designs.</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- contact modal -->
+    <div id="modal-contact" class="modal-overlay">
+        <div class="modal-content max-w-2xl text-center">
+            <div class="close-btn" onclick="closeModal('modal-contact')"><i class="fas fa-times"></i></div>
+            <h2 class="text-6xl font-display mb-4 text-gray-900">Let's Connect</h2>
+            <p class="text-lg text-gray-600 mb-12 font-medium">Feel free to reach out for collaborations or just a friendly hello!</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-8">
+                <!-- linkedin -->
+                <a href="https://www.linkedin.com/in/iman-attar-4653b5250" target="_blank" class="flex flex-col items-center gap-4 p-8 bg-[#E1E6D8]/30 border-2 border-[#E1E6D8] rounded-2xl hover:bg-purple-50 transition-colors w-full sm:w-1/2 shadow-sm hover:shadow-md">
+                    <img src="images/linkedin_logo.png" alt="LinkedIn" class="w-16 h-16 object-contain">
+                    <span class="font-display text-2xl text-gray-900">LinkedIn</span>
+                </a>
+                
+                <!-- email -->
+                <a href="mailto:imanl.attar@gmail.com" class="flex flex-col items-center gap-4 p-8 bg-[#E1E6D8]/30 border-2 border-[#E1E6D8] rounded-2xl hover:bg-blue-50 transition-colors w-full sm:w-1/2 shadow-sm hover:shadow-md">
+                    <img src="images/gmail_logo.png" alt="Gmail" class="w-16 h-16 object-contain">
+                    <span class="font-display text-2xl text-gray-900">Email Me</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- javascript -->
+    <script>
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        let purseOpen = false;
+        function togglePurse() {
+            const purse = document.getElementById('purse-trigger');
+            const purseImg = document.getElementById('main-purse-img');
+            const items = document.querySelectorAll('.item');
+            const textContainer = document.getElementById('instruction-text-container');
+            
+            purseOpen = !purseOpen;
+
+            if (purseOpen) {
+                purse.classList.add('active');
+                purseImg.src = 'images/openpurse.png';
+                items.forEach(item => item.classList.add('revealed'));
+                textContainer.style.opacity = '0';
+            } else {
+                purse.classList.remove('active');
+                purseImg.src = 'images/purse.png';
+                items.forEach(item => {
+                    item.classList.remove('revealed');
+                    item.classList.remove('zoomed');
+                });
+                textContainer.style.opacity = '1';
+                
+                // reset images on close
+                document.getElementById('bio-img').src = 'images/smiski.png';
+                document.getElementById('web-img').src = 'images/laptop.png';
+                document.getElementById('exp-img').src = 'images/folder.png';
+                document.getElementById('art-img').src = 'images/sketchbook.png';
+                document.getElementById('edu-img').src = 'images/gradcat.png';
+                document.getElementById('skills-img').src = 'images/pouch.png';
+                document.getElementById('contact-img').src = 'images/phone_close.png';
+            }
+        }
+
+        function handleItemClick(event, element, modalId) {
+            event.stopPropagation();
+            element.classList.add('zoomed');
+            
+            // swap images on click
+            if (modalId === 'modal-bio') {
+                document.getElementById('bio-img').src = 'images/smiski_open.png';
+            } else if (modalId === 'modal-projects') {
+                document.getElementById('web-img').src = 'images/laptop_open.png';
+            } else if (modalId === 'modal-exp') {
+                document.getElementById('exp-img').src = 'images/openfolder.png';
+            } else if (modalId === 'modal-art') {
+                document.getElementById('art-img').src = 'images/open_sketchbook.png';
+            } else if (modalId === 'modal-edu') {
+                document.getElementById('edu-img').src = 'images/gradcat_open.png';
+            } else if (modalId === 'modal-skills') {
+                document.getElementById('skills-img').src = 'images/pouch_open.png';
+            } else if (modalId === 'modal-contact') {
+                // set phone to open
+                document.getElementById('contact-img').src = 'images/phone.png'; 
+            }
+
+            setTimeout(() => {
+                openModal(modalId);
+            }, 400); 
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.remove('zoomed');
+            });
+            
+            // reset images on modal close
+            document.getElementById('bio-img').src = 'images/smiski.png';
+            document.getElementById('web-img').src = 'images/laptop.png';
+            document.getElementById('exp-img').src = 'images/folder.png';
+            document.getElementById('art-img').src = 'images/sketchbook.png';
+            document.getElementById('edu-img').src = 'images/gradcat.png';
+            document.getElementById('skills-img').src = 'images/pouch.png';
+            document.getElementById('contact-img').src = 'images/phone_close.png';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
+                document.querySelectorAll('.item').forEach(item => {
+                    item.classList.remove('zoomed');
+                });
+                
+                // reset images on outside click
+                document.getElementById('bio-img').src = 'images/smiski.png';
+                document.getElementById('web-img').src = 'images/laptop.png';
+                document.getElementById('exp-img').src = 'images/folder.png';
+                document.getElementById('art-img').src = 'images/sketchbook.png';
+                document.getElementById('edu-img').src = 'images/gradcat.png';
+                document.getElementById('skills-img').src = 'images/pouch.png';
+                document.getElementById('contact-img').src = 'images/phone_close.png';
+            }
+        }
+    </script>
+</body>
+</html>
